@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from json import dumps
 from pathlib import Path
 from typing import Any
 
@@ -33,15 +34,25 @@ class ModelResult:
 
 
 def build_pipeline(estimator: Any) -> Pipeline:
+    """Create a reusable TF-IDF plus classifier pipeline."""
     return Pipeline(
         [
-            ("tfidf", TfidfVectorizer(preprocessor=preprocess_text, ngram_range=(1, 2), min_df=1)),
+            (
+                "tfidf",
+                TfidfVectorizer(
+                    preprocessor=preprocess_text,
+                    ngram_range=(1, 2),
+                    min_df=1,
+                    max_features=5000,
+                ),
+            ),
             ("classifier", estimator),
         ]
     )
 
 
 def evaluate_model(name: str, pipeline: Pipeline, x_test: pd.Series, y_test: pd.Series) -> ModelResult:
+    """Evaluate a fitted model on the held-out test split."""
     predictions = pipeline.predict(x_test)
     return ModelResult(
         name=name,
@@ -56,6 +67,7 @@ def evaluate_model(name: str, pipeline: Pipeline, x_test: pd.Series, y_test: pd.
 
 
 def train_best_model(dataset_path: Path = DATA_PATH, model_path: Path = MODEL_PATH) -> dict[str, ModelResult]:
+    """Train candidate models, evaluate them, and persist the best pipeline."""
     df = load_dataset(dataset_path)
     x_train, x_test, y_train, y_test = train_test_split(
         df["text"],
@@ -79,6 +91,22 @@ def train_best_model(dataset_path: Path = DATA_PATH, model_path: Path = MODEL_PA
     best_result = max(results.values(), key=lambda item: item.f1)
     ensure_directory(model_path.parent)
     joblib.dump(best_result.pipeline, model_path)
+    report_path = model_path.with_suffix(".json")
+    report_path.write_text(
+        dumps(
+            {
+                "best_model": best_result.name,
+                "accuracy": best_result.accuracy,
+                "precision": best_result.precision,
+                "recall": best_result.recall,
+                "f1": best_result.f1,
+                "confusion_matrix": best_result.confusion_matrix,
+                "classification_report": best_result.classification_report,
+            },
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
     return results
 
 

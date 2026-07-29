@@ -1,5 +1,4 @@
 from fastapi.testclient import TestClient
-from sklearn.pipeline import Pipeline
 
 from api.main import app
 
@@ -13,7 +12,7 @@ class DummyModel:
 
 
 def test_valid_prediction_request(monkeypatch):
-    monkeypatch.setattr("src.predict.load_model", lambda model_path=None: DummyModel())
+    monkeypatch.setattr("api.main.get_model", lambda: DummyModel())
     response = client.post("/predict", json={"text": "I love this product"})
     assert response.status_code == 200
     assert response.json()["sentiment"] == "positive"

@@ -68,25 +68,25 @@ Each model is evaluated using:
 
 ```text
 sentiment-analysis-nlp-api/
-├── data/
-│   └── reviews.csv
-├── notebooks/
-│   └── sentiment_analysis_eda.ipynb
-├── models/
-│   └── sentiment_model.pkl
-├── src/
-│   ├── preprocessing.py
-│   ├── train_model.py
-│   ├── predict.py
-│   └── utils.py
-├── api/
-│   └── main.py
-├── tests/
-│   └── test_api.py
-├── requirements.txt
-├── README.md
-├── .gitignore
-└── LICENSE
+|-- data/
+|   `-- reviews.csv
+|-- notebooks/
+|   `-- sentiment_analysis_eda.ipynb
+|-- models/
+|   `-- sentiment_model.pkl
+|-- src/
+|   |-- preprocessing.py
+|   |-- train_model.py
+|   |-- predict.py
+|   `-- utils.py
+|-- api/
+|   `-- main.py
+|-- tests/
+|   `-- test_api.py
+|-- requirements.txt
+|-- README.md
+|-- .gitignore
+`-- LICENSE
 ```
 
 ## Installation
@@ -142,6 +142,11 @@ Content-Type: application/json
   "sentiment": "positive"
 }
 ```
+
+## Best Model Performance
+
+After training on the provided dataset, the script writes evaluation details to `models/sentiment_model.json`.
+That file includes the best model name, accuracy, precision, recall, F1-score, and confusion matrix.
 
 ## Testing
 
